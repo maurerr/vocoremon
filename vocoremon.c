@@ -162,8 +162,9 @@ void vocoremon_restart_wireless()
 
 int main(int argc, char *argv[])
 {
-    int wait = 0;
+    int wait = 0, recover = 0;
 
+    printf("compiled at %s.\n", __DATE__);
     if(argc > 2) {
         printf("vocoremon [wait]: put it in rc.local to make it run automaticly.\n");
         return -1;
@@ -171,16 +172,19 @@ int main(int argc, char *argv[])
 
     if(argc == 2) {
         wait = atoi(argv[1]);
+        recover = vocoremon_is_recover_mode();
+
+        // change back to user config at startup.
+        rename("/etc/config/wireless.user", "/etc/config/wireless");
+
         printf("vocoremon will check your wifi status in %d seconds...\n", wait);
         sleep(wait);
     } else {
         printf("vocoremon is checking your wifi status...\n");
     }
 
-
-    if(vocoremon_is_recover_mode()) {
+    if(recover) {
         printf("recovering backup wireless config...\n");
-        rename("/etc/config/wireless.user", "/etc/config/wireless");
         vocoremon_restart_wireless();
     }
 
@@ -191,6 +195,7 @@ int main(int argc, char *argv[])
         break;
 
     case 0:     // not setting sta, just ignore.
+        printf("there is no sta mode, ignore.\n");
         return 1;
 
     case 1:     // setting sta, we should check the network.
