@@ -22,7 +22,7 @@
 // I will put VoCre to normal mode, ap+sta could work same time.
 
 // check if we are in recover mode.
-int vocoremin_is_recover_mode()
+int vocoremon_is_recover_mode()
 {
     FILE *fp;
 
@@ -35,13 +35,13 @@ int vocoremin_is_recover_mode()
     return 1;
 }
 
-int vocoremin_is_normal_mode()
+int vocoremon_is_normal_mode()
 {
-    return !vocoremin_is_recover_mode();
+    return !vocoremon_is_recover_mode();
 }
 
 // check if user setup sta mode in config.
-int vocoremin_check_sta_mode()
+int vocoremon_check_sta_mode()
 {
     FILE *pp;
 
@@ -64,7 +64,7 @@ int vocoremin_check_sta_mode()
     return 0;
 }
 
-char *vocoremin_get_default_gateway()
+char *vocoremon_get_default_gateway()
 {
     static char gw[0x20];
     FILE *pp;
@@ -99,12 +99,12 @@ char *vocoremin_get_default_gateway()
 }
 
 // check if current sta mode is accessable.
-int vocoremin_check_sta_accessable()
+int vocoremon_check_sta_accessable()
 {
     FILE *pp;
     char cmd[BUFSIZE], *def;
 
-    def = vocoremin_get_default_gateway();
+    def = vocoremon_get_default_gateway();
     if(def == NULL)
         return 0;
     printf("default gateway: %s\n", def);
@@ -130,7 +130,7 @@ int vocoremin_check_sta_accessable()
     return 0;
 }
 
-void vocoremin_create_default_config()
+void vocoremon_create_default_config()
 {
     FILE *fp;
     char buf[] = "config wifi-device  radio0\n"
@@ -155,7 +155,7 @@ void vocoremin_create_default_config()
     fclose(fp);
 }
 
-void vocoremin_restart_wireless()
+void vocoremon_restart_wireless()
 {
     execl("/sbin/wifi", "wifi");
 }
@@ -165,26 +165,26 @@ int main(int argc, char *argv[])
     int wait = 0;
 
     if(argc > 2) {
-        printf("vocoremin [wait]: put it in rc.local to make it run automaticly.\n");
+        printf("vocoremon [wait]: put it in rc.local to make it run automaticly.\n");
         return -1;
     }
 
     if(argc == 2) {
         wait = atoi(argv[1]);
-        printf("vocoremin will check your wifi status in %d seconds...\n", wait);
+        printf("vocoremon will check your wifi status in %d seconds...\n", wait);
         sleep(wait);
     } else {
-        printf("vocoremin is checking your wifi status...\n");
+        printf("vocoremon is checking your wifi status...\n");
     }
 
 
-    if(vocoremin_is_recover_mode()) {
+    if(vocoremon_is_recover_mode()) {
         printf("recovering backup wireless config...\n");
         rename("/etc/config/wireless.user", "/etc/config/wireless");
-        vocoremin_restart_wireless();
+        vocoremon_restart_wireless();
     }
 
-    switch(vocoremin_check_sta_mode()) {
+    switch(vocoremon_check_sta_mode()) {
     case -1:
         printf("ERROR: failed to check sta mode.\n");
         // IMPORTANT: depends on wifi/ping/route/grep.
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
         return 1;
 
     case 1:     // setting sta, we should check the network.
-        switch(vocoremin_check_sta_accessable()) {
+        switch(vocoremon_check_sta_accessable()) {
         case -1:
             printf("ERROR: failed to check sta accessable.\n");
             break;
@@ -205,8 +205,8 @@ int main(int argc, char *argv[])
                 printf("ERROR: failed to recover wireless setting.\n");
                 return 0;
             }
-            vocoremin_create_default_config();
-            vocoremin_restart_wireless();
+            vocoremon_create_default_config();
+            vocoremon_restart_wireless();
 
             printf("your wireless config changed to default now.\n");
             break;
