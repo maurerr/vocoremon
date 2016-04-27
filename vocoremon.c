@@ -18,11 +18,11 @@
 
 // there are two modes, one is normal mode, ap+sta works well.
 // one is recover mode, if last time failed to go into ap+sta mode, I will
-// set VoCore into recover mode, back into only ap mode. Once sta is recovered,
-// I will put VoCre to normal mode, ap+sta could work same time.
+// set wlan into recover mode, back into only ap mode. Once sta is recovered,
+// I will put wlan to normal mode, ap+sta could work same time.
 
 // check if we are in recover mode.
-int vocoremon_is_recover_mode()
+int apstamon_is_recover_mode()
 {
     FILE *fp;
 
@@ -35,13 +35,13 @@ int vocoremon_is_recover_mode()
     return 1;
 }
 
-int vocoremon_is_normal_mode()
+int apstamon_is_normal_mode()
 {
-    return !vocoremon_is_recover_mode();
+    return !apstamon_is_recover_mode();
 }
 
 // check if user setup sta mode in config.
-int vocoremon_check_sta_mode()
+int apstamon_check_sta_mode()
 {
     FILE *pp;
 
@@ -64,7 +64,7 @@ int vocoremon_check_sta_mode()
     return 0;
 }
 
-char *vocoremon_get_default_gateway()
+char *apstamon_get_default_gateway()
 {
     static char gw[0x20];
     FILE *pp;
@@ -99,12 +99,12 @@ char *vocoremon_get_default_gateway()
 }
 
 // check if current sta mode is accessable.
-int vocoremon_check_sta_accessable()
+int apstamon_check_sta_accessable()
 {
     FILE *pp;
     char cmd[BUFSIZE], *def;
 
-    def = vocoremon_get_default_gateway();
+    def = apstamon_get_default_gateway();
     if(def == NULL)
         return 0;
     printf("default gateway: %s\n", def);
@@ -130,7 +130,7 @@ int vocoremon_check_sta_accessable()
     return 0;
 }
 
-void vocoremon_create_default_config()
+void apstamon_create_default_config()
 {
     FILE *fp;
     char buf[] = "config wifi-device  radio0\n"
@@ -144,7 +144,7 @@ void vocoremon_create_default_config()
                  "\toption device   radio0\n"
                  "\toption network  lan\n"
                  "\toption mode     ap\n"
-                 "\toption ssid     VoCore\n"
+                 "\toption ssid     Openwrt\n"
                  "\toption encryption none\n\n";
 
     fp = fopen("/etc/config/wireless", "wb");
@@ -155,7 +155,7 @@ void vocoremon_create_default_config()
     fclose(fp);
 }
 
-void vocoremon_restart_wireless()
+void apstamon_restart_wireless()
 {
     execl("/sbin/wifi", "wifi");
 }
@@ -166,29 +166,29 @@ int main(int argc, char *argv[])
 
     printf("compiled at %s.\n", __DATE__);
     if(argc > 2) {
-        printf("vocoremon [wait]: put it in rc.local to make it run automaticly.\n");
+        printf("apstamon [wait]: put it in rc.local to make it run automaticly.\n");
         return -1;
     }
 
     if(argc == 2) {
         wait = atoi(argv[1]);
-        recover = vocoremon_is_recover_mode();
+        recover = apstamon_is_recover_mode();
 
         // change back to user config at startup.
         rename("/etc/config/wireless.user", "/etc/config/wireless");
 
-        printf("vocoremon will check your wifi status in %d seconds...\n", wait);
+        printf("apstamon will check your wifi status in %d seconds...\n", wait);
         sleep(wait);
     } else {
-        printf("vocoremon is checking your wifi status...\n");
+        printf("apstamon is checking your wifi status...\n");
     }
 
     if(recover) {
         printf("recovering backup wireless config...\n");
-        vocoremon_restart_wireless();
+        apstamon_restart_wireless();
     }
 
-    switch(vocoremon_check_sta_mode()) {
+    switch(apstamon_check_sta_mode()) {
     case -1:
         printf("ERROR: failed to check sta mode.\n");
         // IMPORTANT: depends on wifi/ping/route/grep.
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
         return 1;
 
     case 1:     // setting sta, we should check the network.
-        switch(vocoremon_check_sta_accessable()) {
+        switch(apstamon_check_sta_accessable()) {
         case -1:
             printf("ERROR: failed to check sta accessable.\n");
             break;
@@ -210,8 +210,8 @@ int main(int argc, char *argv[])
                 printf("ERROR: failed to recover wireless setting.\n");
                 return 0;
             }
-            vocoremon_create_default_config();
-            vocoremon_restart_wireless();
+            apstamon_create_default_config();
+            apstamon_restart_wireless();
 
             printf("your wireless config changed to default now.\n");
             break;
@@ -230,4 +230,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
