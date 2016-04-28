@@ -137,7 +137,7 @@ void apstamon_create_default_config()
                  "\toption type     mac80211\n"
                  "\toption channel  11\n"
                  "\toption hwmode	11g\n"
-                 "\toption path	\'10180000.wmac\'\n"
+                 "\toption phy      phy0\n"
                  "\toption htmode	HT20\n"
                  "\n"
                  "config wifi-iface\n"
