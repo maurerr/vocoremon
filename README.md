@@ -16,7 +16,8 @@ Used to fix VoCore can not show AP when STA not working in AP+STA
 
 ###Install:
   Copy vocoremon to /bin/apstamon
-  Add one line into /etc/rc.local: /bin/apstamon 20 >> /tmp/vocore.log &
+  Add one line into /etc/rc.local: 
+  /bin/apstamon 20 >> /tmp/vocore.log &
   
   That's ALL.
 
