@@ -15,8 +15,8 @@ Used to fix VoCore can not show AP when STA not working in AP+STA
   So once you install vocoremon, do not have to take USB2TTL anymore, VoCore are able to create its AP hot point anywhere, any setting.
 
 ###Install:
-  Copy vocoremon to /bin/vocoremon
-  Add one line into /etc/rc.local: /bin/vocoremon
+  Copy vocoremon to /bin/apstamon
+  Add one line into /etc/rc.local: /bin/apstamon
   That's ALL.
 
 
